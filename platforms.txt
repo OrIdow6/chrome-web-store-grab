@@ -1,0 +1,8 @@
+response=redirect&os=win&arch=x64&os_arch=x86_64&nacl_arch=x86-64&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=cros&arch=x64&os_arch=x86_64&nacl_arch=x86-64&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=cros&arch=arm64&os_arch=arm64&nacl_arch=arm64&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=win&arch=x86&os_arch=x86&nacl_arch=x86-32&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=mac&arch=x64&os_arch=x86_64&nacl_arch=x86-64&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=mac&arch=x86&os_arch=x86&nacl_arch=x86-32&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=linux&arch=x64&os_arch=x86_64&nacl_arch=x86-64&prod=chromecrx&acceptformat=crx3&prodversion=100
+response=redirect&os=linux&arch=x86&os_arch=x86&nacl_arch=x86-32&prod=chromecrx&acceptformat=crx3&prodversion=100
