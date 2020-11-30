@@ -52,7 +52,7 @@ if not WGET_AT:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20201130.01'
+VERSION = '20201130.02'
 USER_AGENT = 'ArchiveTeam (https://www.archiveteam.org/)'
 TRACKER_ID = 'chrome-web-store'
 TRACKER_HOST = 'trackerproxy.archiveteam.org'
@@ -220,9 +220,8 @@ class WgetArgs(object):
 project = Project(
     title = 'chrome-web-store',
     project_html = '''
-    TODO
-    <img class="project-logo" alt="logo" src="https://archiveteam.org/images/7/7f/Nagi-logo.gif" height="50px"/>
-    <h2>nagi.ee <span class="links"><a href="http://nagi.ee/">Website</a> &middot; <a href="http://tracker.archiveteam.org/nagi/">Leaderboard</a></span></h2>
+    <img class="project-logo" alt="logo" src="https://www.archiveteam.org/images/4/40/Google_Logo.png" height="50px"/>
+    <h2>Chrome Web Store <span class="links"><a href="https://chrome.google.com/webstore/">Website</a> &middot; <a href="http://tracker.archiveteam.org/chrome-web-store/">Leaderboard</a></span></h2>
     '''
 )
 
@@ -230,7 +229,7 @@ pipeline = Pipeline(
     CheckIP(),
     GetItemFromTracker('http://%s/%s' % (TRACKER_HOST, TRACKER_ID), downloader,
         VERSION),
-    PrepareDirectories(warc_prefix='nagi'),
+    PrepareDirectories(warc_prefix='chrome-web-store'),
     WgetDownload(
         WgetArgs(),
         max_tries=1,
