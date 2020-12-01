@@ -194,32 +194,32 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   
   if status_code == 200 then
     html = read_file(file)
-  end
 
-  -- If it is a details page, queue the info JSON, review JSON, and permalink
-  if string.match(url, "^https://chrome%.google%.com/webstore/detail/") then
-    extension_id = string.match(url, "/([^/]-)$")
-    -- Note sure what this is (best guess is the date of the most recent plugin update)
-    date = string.match(html, '"https://accounts%.google%.com/AccountChooser","(%d%d%d%d%d%d%d%d)",%[%]')
-    req_id = "11111"
-   table.insert(urls, { url="https://chrome.google.com/webstore/ajax/detail?hl=en-US&gl=US&pv=" .. date .. "&mce=atf%2Cpii%2Crtr%2Crlb%2Cgtc%2Chcn%2Csvp%2Cwtd%2Chap%2Cnma%2Cdpb%2Car2%2Crp2%2Cutb%2Chbh%2Chns%2Cctm%2Cac%2Chot%2Cmac%2Cfcf%2Crma&id=" .. extension_id .. "&container=CHROME&_reqid=" .. req_id .. "&rt=j", post_data="login%3D%26"})
-   table.insert(urls, {url="https://chrome.google.com/webstore/reviews/get?hl=en-US&gl=US&pv=" .. date .. "&mce=atf%2Cpii%2Crtr%2Crlb%2Cgtc%2Chcn%2Csvp%2Cwtd%2Chap%2Cnma%2Cdpb%2Car2%2Crp2%2Cutb%2Chbh%2Chns%2Cctm%2Cac%2Chot%2Cmac%2Cfcf%2Crma%2Clrc%2Cspt%2Cirt%2Cscm%2Cder%2Cbgi%2Cbem%2Crae%2Cshr%2Cdda%2Cigb%2Chib%2Cdsq%2Cqso&_reqid=" .. req_id .. "&rt=j",
-                       post_data = "login=&f.req=%5B%22http%3A%2F%2Fchrome.google.com%2Fextensions%2Fpermalink%3Fid%3D" .. extension_id .. "%22%2C%22en%22%2C%5B25%5D%2C1%2C%5B2%5D%2Ctrue%5D&"})
-  checknewurl("http://chrome.google.com/extensions/permalink?id=" .. extension_id)
-  end
-  
-  -- If it is the info or review JSON, queue images (and other links from there)
-  if string.match(url, "^https://chrome%.google%.com/webstore/ajax/") then
-    processed_html = html
-    -- Replace unicode escapes
-    char_to_replace = 32
-    while char_to_replace < 127 do
-      --print("\u00" .. string.format("%x", char_to_replace))
-      processed_html = string.gsub(processed_html, "\\u00" .. string.format("%x", char_to_replace), string.char(char_to_replace))
-      char_to_replace = char_to_replace + 1
+    -- If it is a details page, queue the info JSON, review JSON, and permalink
+    if string.match(url, "^https://chrome%.google%.com/webstore/detail/") then
+      extension_id = string.match(url, "/([^/]-)$")
+      -- Note sure what this is (best guess is the date of the most recent plugin update)
+      date = string.match(html, '"https://accounts%.google%.com/AccountChooser","(%d%d%d%d%d%d%d%d)",%[%]')
+      req_id = "11111"
+    table.insert(urls, { url="https://chrome.google.com/webstore/ajax/detail?hl=en-US&gl=US&pv=" .. date .. "&mce=atf%2Cpii%2Crtr%2Crlb%2Cgtc%2Chcn%2Csvp%2Cwtd%2Chap%2Cnma%2Cdpb%2Car2%2Crp2%2Cutb%2Chbh%2Chns%2Cctm%2Cac%2Chot%2Cmac%2Cfcf%2Crma&id=" .. extension_id .. "&container=CHROME&_reqid=" .. req_id .. "&rt=j", post_data="login%3D%26"})
+    table.insert(urls, {url="https://chrome.google.com/webstore/reviews/get?hl=en-US&gl=US&pv=" .. date .. "&mce=atf%2Cpii%2Crtr%2Crlb%2Cgtc%2Chcn%2Csvp%2Cwtd%2Chap%2Cnma%2Cdpb%2Car2%2Crp2%2Cutb%2Chbh%2Chns%2Cctm%2Cac%2Chot%2Cmac%2Cfcf%2Crma%2Clrc%2Cspt%2Cirt%2Cscm%2Cder%2Cbgi%2Cbem%2Crae%2Cshr%2Cdda%2Cigb%2Chib%2Cdsq%2Cqso&_reqid=" .. req_id .. "&rt=j",
+                        post_data = "login=&f.req=%5B%22http%3A%2F%2Fchrome.google.com%2Fextensions%2Fpermalink%3Fid%3D" .. extension_id .. "%22%2C%22en%22%2C%5B25%5D%2C1%2C%5B2%5D%2Ctrue%5D&"})
+    checknewurl("http://chrome.google.com/extensions/permalink?id=" .. extension_id)
     end
-    for newurl in string.gmatch(processed_html, '"(https?://[^"]-)"') do
-      checknewurl(newurl)
+    
+    -- If it is the info or review JSON, queue images (and other links from there)
+    if string.match(url, "^https://chrome%.google%.com/webstore/ajax/") then
+      processed_html = html
+      -- Replace unicode escapes
+      char_to_replace = 32
+      while char_to_replace < 127 do
+        --print("\u00" .. string.format("%x", char_to_replace))
+        processed_html = string.gsub(processed_html, "\\u00" .. string.format("%x", char_to_replace), string.char(char_to_replace))
+        char_to_replace = char_to_replace + 1
+      end
+      for newurl in string.gmatch(processed_html, '"(https?://[^"]-)"') do
+        checknewurl(newurl)
+      end
     end
   end
     
