@@ -1,7 +1,7 @@
-nagi-grab
+chrome-web-store-grab
 =============
 
-More information about the archiving project can be found on the ArchiveTeam wiki: [Chrome Web Store](https://www.archiveteam.org/index.php/Chrome_Web_Store))
+More information about the archiving project can be found on the ArchiveTeam wiki: [Chrome Web Store](https://www.archiveteam.org/index.php/Chrome_Web_Store)
 
 Setup instructions
 =========================

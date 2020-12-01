@@ -52,7 +52,7 @@ if not WGET_AT:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20201130.02'
+VERSION = '20201201.01'
 USER_AGENT = 'ArchiveTeam (https://www.archiveteam.org/)'
 TRACKER_ID = 'chrome-web-store'
 TRACKER_HOST = 'trackerproxy.archiveteam.org'
