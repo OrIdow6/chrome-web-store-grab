@@ -74,6 +74,14 @@ allowed = function(url, parenturl)
   end
   
   if string.match(url, "^https?://lh3%.googleusercontent%.com/") then
+    -- Some weird short URLs were getting extracted for this domain
+    local slug = string.match(url, "^https?://lh3%.googleusercontent%.com/(.*)$")
+    if slug then
+      --print("Slug is " .. slug .. " len is " .. tostring(#slug))
+      if #slug < 6 then
+        return false
+      end
+    end
     return true
   end
   
