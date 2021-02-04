@@ -17,6 +17,7 @@ local abortgrab = false
 local platforms_to_try = {}
 local attempted_platform_index = 0
 num_good_downloads = 0
+details_page_was_404 = false
 
 all_plats_queued = false
 local all_possible_platforms = {}
@@ -195,9 +196,20 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   if status_code == 200 then
     html = read_file(file)
 
-    -- If it is a details page, queue the info JSON, review JSON, and permalink
+    -- If it is a details page, queue the first CRXes, info JSON, review JSON, and permalink
     if string.match(url, "^https://chrome%.google%.com/webstore/detail/") then
       extension_id = string.match(url, "/([^/]-)$")
+
+      -- To be safe
+      if not string.match(item_value, extension_id) then
+        abortgrab = true
+      end
+
+      -- Lennier1's idea - 2 diff versions
+      -- Also get the commonly-DLd forms online
+      check('https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D' .. extension_id .. '%26installsource%3Dondemand%26uc')
+      check('https://clients2.google.com/service/update2/crx?response=redirect&prodversion=68.0&x=id%3D' .. extension_id .. '%26installsource%3Dondemand%26uc')
+
       -- Note sure what this is (best guess is the date of the most recent plugin update)
       date = string.match(html, '"https://accounts%.google%.com/AccountChooser","(%d%d%d%d%d%d%d%d)",%[%]')
       req_id = "11111"
@@ -318,6 +330,10 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
     os.execute("sleep " .. sleep_time)
   end
 
+  if url_count == 1 and status_code == 404 then
+    details_page_was_404 = true
+  end
+
   return wget.actions.NOTHING
 end
 
@@ -325,7 +341,7 @@ wget.callbacks.before_exit = function(exit_status, exit_status_string)
   if abortgrab == true then
     return wget.exits.IO_FAIL
   end
-  if num_good_downloads == 0 then
+  if num_good_downloads == 0 and not details_page_was_404 then
     print("Downloaded no crx files")
     return wget.exits.IO_FAIL
   end

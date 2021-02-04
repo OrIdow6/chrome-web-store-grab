@@ -52,7 +52,7 @@ if not WGET_AT:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20201201.01'
+VERSION = '20210204.01'
 USER_AGENT = 'ArchiveTeam (https://www.archiveteam.org/)'
 TRACKER_ID = 'chrome-web-store'
 TRACKER_HOST = 'trackerproxy.archiveteam.org'
@@ -192,14 +192,7 @@ class WgetArgs(object):
 
         if item_type == 'extension':
             wget_args.extend(['--warc-header', 'chrome-web-store-extension: ' + item_value])
-            # TODO check with Fusl (/ in logs) what are legal item names
             wget_args.append('https://chrome.google.com/webstore/detail/' + item_value)
-            extension_id = item_value.split("/")[1]
-            # Lennier1's idea - 2 diff versions
-            # Also get the commonly-DLd forms online
-            wget_args.append('https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D' + extension_id + '%26installsource%3Dondemand%26uc')
-            wget_args.append('https://clients2.google.com/service/update2/crx?response=redirect&prodversion=68.0&x=id%3D' + extension_id + '%26installsource%3Dondemand%26uc')
-            
         else:
             raise ValueError('item_type not supported.')
 
