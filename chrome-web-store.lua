@@ -18,6 +18,7 @@ local platforms_to_try = {}
 local attempted_platform_index = 0
 num_good_downloads = 0
 details_page_was_404 = false
+extension_no_longer_available = false
 
 all_plats_queued = false
 local all_possible_platforms = {}
@@ -90,7 +91,10 @@ allowed = function(url, parenturl)
   if string.match(url, "^https?://chrome%.google%.com/extensions/permalink%?id=") then
     return true
   end
-    
+
+  if string.match(url, "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main$") then
+    return true
+  end
   
   return false
 end
@@ -174,7 +178,8 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
   end
   
   -- If good download, stop trying to download (unless Lennier1's thing activates)
-  if string.match(url, "^https://clients2%.google%.com/service/update2/crx%?response=redirect") and num_good_downloads == 0 then
+  if string.match(url, "^https://clients2%.google%.com/service/update2/crx%?response=redirect") and num_good_downloads == 0
+  and not (extension_no_longer_available and attempted_platform_index == #platforms_to_try - 1) then
     -- Figure out the current extension id
     extension_id = string.match(url, "=id%%3D(.-)%%")
     -- Queue the next platform
@@ -279,6 +284,14 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
     num_good_downloads = num_good_downloads + 1
   end
 
+  -- Why this endpoint even exists, when it always seems to give 401s even on valid extensions, I don't know
+  -- (normally, it will only be grabbed when one of the response=redirect URLs redirect to it, which only seems
+  --  to happen on these extensions)
+  if string.match(url["url"], "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main$") and status_code == 401 then
+    extension_no_longer_available = true
+    return wget.actions.EXIT
+  end
+
 
   if status_code >= 300 and status_code <= 399 then
     local newloc = urlparse.absolute(url["url"], http_stat["newloc"])
@@ -341,7 +354,7 @@ wget.callbacks.before_exit = function(exit_status, exit_status_string)
   if abortgrab == true then
     return wget.exits.IO_FAIL
   end
-  if num_good_downloads == 0 and not details_page_was_404 then
+  if num_good_downloads == 0 and not details_page_was_404 and not extension_no_longer_available then
     print("Downloaded no crx files")
     return wget.exits.IO_FAIL
   end
