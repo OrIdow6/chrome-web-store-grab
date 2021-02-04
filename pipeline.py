@@ -40,7 +40,10 @@ WGET_AT = find_executable(
         'GNU Wget 1.20.3-at.20200919.01',
         'GNU Wget 1.20.3-at.20201030.01'
     ],
-    ['./wget-at']
+    [
+        './wget-at',
+        '/home/warrior/data/wget-at'
+    ]
 )
 
 if not WGET_AT:
@@ -55,7 +58,7 @@ if not WGET_AT:
 VERSION = '20210204.01'
 USER_AGENT = 'ArchiveTeam (https://www.archiveteam.org/)'
 TRACKER_ID = 'chrome-web-store'
-TRACKER_HOST = 'trackerproxy.archiveteam.org'
+TRACKER_HOST = 'legacy-api.arpa.li'
 
 
 ###########################################################################
