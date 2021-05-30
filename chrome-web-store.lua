@@ -29,6 +29,8 @@ if urlparse == nil or http == nil then
   abortgrab = true
 end
 
+io.stdout:setvbuf("no") -- So prints are not buffered - http://lua.2524044.n2.nabble.com/print-stdout-and-flush-td6406981.html
+
 for ignore in io.open("ignore-list", "r"):lines() do
   downloaded[ignore] = true
 end
@@ -285,6 +287,7 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   
   -- If it's CRX{2,3}-only URL, no issue
   if string.match(url["url"], '^https://clients2%.google%.com/service/update2/crx%?response=redirect') and status_code == 204 then
+    tries = 0
     return wget.actions.EXIT
   end
   
@@ -299,19 +302,23 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   if (string.match(url["url"], "^https?://chrome%.google%.com/webstore/download/[^/]+/package/main")
   or string.match(url["url"], "^https?://chrome%.google%.com/webstore/download/[^/]+/crx/%d$")) and status_code == 401 then
     extension_no_longer_available = true
+    tries = 0
     return wget.actions.EXIT
   end
 
+  if url_count == 1 and status_code == 404 then
+    details_page_was_404 = true
+  end
 
   if status_code >= 300 and status_code <= 399 then
     local newloc = urlparse.absolute(url["url"], http_stat["newloc"])
     if downloaded[newloc] == true or addedtolist[newloc] == true
-      or not allowed(newloc, url["url"]) then
+            or not allowed(newloc, url["url"]) then
       tries = 0
       return wget.actions.EXIT
     end
   end
-  
+
   if status_code >= 200 and status_code <= 399 then
     downloaded[url["url"]] = true
   end
@@ -322,41 +329,45 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
     return wget.actions.ABORT
   end
 
-  if status_code ~= 200 and status_code ~= 404 and status_code ~= 302 then
-    io.stdout:write("Server returned " .. http_stat.statcode .. " (" .. err .. "). Sleeping.\n")
-    io.stdout:flush()
-    local maxtries = 12
-    if not allowed(url["url"], nil) then
-      maxtries = 3
-    end
+
+  -- Generic response code handling
+  local do_retry = false
+  local maxtries = 12
+  local url_is_essential = true
+
+  local is_valid_204 = string.match(url["url"], '^https://clients2%.google%.com/service/update2/crx%?response=redirect')
+  if status_code ~= 200
+          and not (status_code == 204 and is_valid_204)
+          and not (status_code >= 300 and status_code <= 399) then
+    print("Server returned " .. http_stat.statcode .. " (" .. err .. "). Sleeping.\n")
+    do_retry = true
+  end
+
+
+  if do_retry then
     if tries >= maxtries then
-      io.stdout:write("I give up...\n")
-      io.stdout:flush()
+      print("I give up...\n")
       tries = 0
-      if maxtries == 3 then
+      if not url_is_essential then
         return wget.actions.EXIT
       else
+        print("Failed on an essential URL, aborting...")
         return wget.actions.ABORT
       end
     else
-      os.execute("sleep " .. math.floor(math.pow(2, tries)))
+      sleep_time = math.floor(math.pow(2, tries))
       tries = tries + 1
-      return wget.actions.CONTINUE
     end
   end
 
-  tries = 0
 
-  local sleep_time = 0
-
-  if sleep_time > 0.001 then
+  if do_retry and sleep_time > 0.001 then
+    print("Sleeping " .. sleep_time .. "s")
     os.execute("sleep " .. sleep_time)
+    return wget.actions.CONTINUE
   end
 
-  if url_count == 1 and status_code == 404 then
-    details_page_was_404 = true
-  end
-
+  tries = 0
   return wget.actions.NOTHING
 end
 
